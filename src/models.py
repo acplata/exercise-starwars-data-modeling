@@ -16,9 +16,7 @@ class User(Base):
     email = Column(String(60), nullable=False)
     password = Column(String(20), nullable=False)
 
-    characters = relationship("character", backref="user")
-    planets = relationship("Planet", backref="user")
-    vehicles = relationship("Vehicle", backref="user")
+    favorites = relationship("Favorite", backref="user")
 
 class Character(Base):
     __tablename__ = "character"
@@ -30,10 +28,9 @@ class Character(Base):
     gender = Column(String(10), nullable=False)
     birth_year = Column(String(10), nullable=False)
 
-    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-    
-    planets = relationship("Planet", backref="post")
-    vehicles = relationship("Vehicle", backref="post")
+    favorites = relationship("Favorite", backref="character")
+    planet_id = Column(Integer, ForeignKey("planet.id"), nullable=False)
+    vehicles = relationship("Vehicle", backref="favorite")
 
 class Planet(Base):
     __tablename__ = "planet"
@@ -43,10 +40,8 @@ class Planet(Base):
     climate = Column(String(100), nullable=False)
     terrain = Column(String(100), nullable=False)
 
-    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-
-    character_id = Column(Integer, ForeignKey("character.id"), nullable=True)
-    vehicle_id = Column(Integer, ForeignKey("vehicle.id"), nullable=True)
+    favorites = relationship("Favorite", backref="planet")
+    characters = relationship("Character", backref="planet")
 
 class Vehicle(Base):
     __tablename__ = "vehicle"
@@ -57,10 +52,18 @@ class Vehicle(Base):
     manufacturer = Column(String(100), nullable=False)
     starship_class = Column(String(100), nullable=False)
 
-    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    favorites = relationship("Favorite", backref="vehicle")
     character_id = Column(Integer, ForeignKey("character.id"), nullable=False)
 
-    planets = relationship("Planet", backref="planet")
+
+class Favorite(Base):
+    __tablename__ = "favorite"
+    id = Column(Integer, primary_key=True)
+
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    character_id = Column(Integer, ForeignKey("character.id"), nullable=True)
+    vehicle_id = Column(Integer, ForeignKey("vehicle.id"), nullable=True)
+    planet_id = Column(Integer, ForeignKey("planet.id"), nullable=True)
 
 ## Draw from SQLAlchemy base
 render_er(Base, 'diagram.png')
